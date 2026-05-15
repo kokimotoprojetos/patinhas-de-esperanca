@@ -78,7 +78,7 @@ export default function Hero() {
               onClick={() => setIsModalOpen(true)}
               className="bg-[#2D2926] text-[#F9F7F2] px-10 py-5 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-[#C2410C] transition-colors text-center shadow-lg shadow-[#2D2926]/10 w-full sm:w-auto"
             >
-              Salve uma vida
+              Salve uma vida hoje
             </button>
             <div className="flex items-center gap-3 text-[10px] uppercase font-bold tracking-tight opacity-50 px-2">
                <span>PIX</span>
