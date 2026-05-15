@@ -51,3 +51,27 @@ export async function createLytronCharge(data: {
 
   return response.json();
 }
+
+export async function getLytronCharge(id: string) {
+  const apiKey = process.env.LYTRON_API_KEY;
+  const secretHash = process.env.LYTRON_SECRET_HASH;
+
+  if (!apiKey || !secretHash) {
+    throw new Error('Lytron Pay credentials are not configured.');
+  }
+
+  const response = await fetch(`https://api.lytronpay.com/api/v1/charges/${id}`, {
+    method: 'GET',
+    headers: {
+      'Api-Access-Key': apiKey,
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Failed to fetch Lytron Pay charge');
+  }
+
+  return response.json();
+}
+

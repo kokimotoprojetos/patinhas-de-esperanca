@@ -48,9 +48,11 @@ export async function POST(request: Request) {
 
     const qrcode = findValue(charge, qrcodeFields);
     const copyPaste = findValue(charge, copyPasteFields);
+    const id = charge.id || charge.txid || charge.data?.id;
 
     return NextResponse.json({
       success: true,
+      id,
       qrcode,
       copyPaste,
     });
