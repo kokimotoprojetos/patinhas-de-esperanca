@@ -26,14 +26,7 @@ export default function Footer() {
                 <li><a href="#doar" className="hover:text-[#C2410C] transition-colors">Como Apoiar</a></li>
               </ul>
             </div>
-            <div>
-              <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-40 mb-6">Social</h4>
-              <div className="flex gap-6">
-                <a href="#" className="opacity-60 hover:opacity-100 hover:text-[#C2410C] transition-all"><Instagram className="w-5 h-5" /></a>
-                <a href="#" className="opacity-60 hover:opacity-100 hover:text-[#C2410C] transition-all"><Facebook className="w-5 h-5" /></a>
-                <a href="#" className="opacity-60 hover:opacity-100 hover:text-[#C2410C] transition-all"><Mail className="w-5 h-5" /></a>
-              </div>
-            </div>
+
           </div>
         </div>
 
