@@ -5,31 +5,31 @@ import Image from 'next/image';
 
 const stories = [
   {
-    image: 'https://picsum.photos/seed/dog-bridge-stray/800/1000',
+    image: '/pet1.webp',
     title: 'O Guardião da Ponte',
     description: 'Encontrado sozinho em uma estrutura de concreto, ele espera por um olhar de compaixão que o tire do relento.',
     alt: 'Cachorro solitário em uma ponte (inspirado na imagem enviada)'
   },
   {
-    image: 'https://picsum.photos/seed/curled-dog-stray/800/1000',
+    image: '/pet2.webp',
     title: 'Solidão Silenciosa',
     description: 'Encolhido contra o frio do chão de pedra, este pequeno ser tenta passar despercebido por um mundo que o ignora.',
     alt: 'Cachorro encolhido no chão (inspirado na imagem enviada)'
   },
   {
-    image: 'https://picsum.photos/seed/homeless-man-dog-stray/800/1000',
+    image: '/pet3.webp',
     title: 'Vínculos Eternos',
     description: 'Mesmo na mais absoluta escassez, a lealdade entre o homem e seu cão é o único calor que resta nas noites de frio.',
     alt: 'Homem e cachorro em situação de rua (inspirado na imagem enviada)'
   },
   {
-    image: 'https://picsum.photos/seed/huddled-puppies-stray/800/1000',
+    image: '/pet4.webp',
     title: 'Infância Interrompida',
     description: 'Filhotes que deveriam estar brincando em um lar seguro, buscam abrigo sob escombros para sobreviver.',
     alt: 'Dois filhotes buscando abrigo e calor (inspirado na imagem enviada)'
   },
   {
-    image: 'https://picsum.photos/seed/sleeping-dog-stairs-stray/800/1000',
+    image: '/pet.webp',
     title: 'Descanso no Cimento',
     description: 'A escada é o seu único refúgio. O cansaço vence o medo em meio ao vaivém indiferente da metrópole.',
     alt: 'Cachorro dormindo em uma escada (inspirado na imagem enviada)'
