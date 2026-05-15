@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, CheckCircle2, Ticket } from 'lucide-react';
+import { X, CheckCircle2 } from 'lucide-react';
+import { QRCodeCanvas } from 'qrcode.react';
 
 interface DonationModalProps {
   isOpen: boolean;
@@ -189,10 +190,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                        <img src={pixData.qrcode} alt="PIX QR Code" className="w-48 h-48" />
                     ) : (
                       <div className="p-2 bg-white">
-                        {/* If we have the library, we'd use QRCodeCanvas here */}
-                        <div className="w-48 h-48 bg-gray-100 flex items-center justify-center text-[10px] text-gray-400 p-4 break-all">
-                          {pixData.qrcode.substring(0, 50)}...
-                        </div>
+                        <QRCodeCanvas value={pixData.qrcode} size={192} />
                       </div>
                     )}
                   </div>
