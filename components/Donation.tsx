@@ -29,26 +29,8 @@ const donationOptions = [
 
 export default function Donation() {
   const [selected, setSelected] = useState('80');
-  const [customValue, setCustomValue] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalValue, setModalValue] = useState<number | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleConfirm = () => {
-    setError(null);
-    let finalAmount: number;
-    if (customValue) {
-      finalAmount = Number(customValue);
-      if (isNaN(finalAmount) || finalAmount < 10) {
-        setError('Valor mínimo R$ 10,00');
-        return;
-      }
-    } else {
-      finalAmount = Number(selected);
-    }
-    setModalValue(finalAmount);
-    setIsModalOpen(true);
-  };
 
   return (
     <section id="doar" className="py-32 bg-[#E6E2D8]/30">
@@ -63,7 +45,7 @@ export default function Donation() {
                 Torne-se o <br/><span className="italic">herói</span> de uma vida.
               </h2>
               <p className="text-[#2D2926]/60 mb-10 leading-relaxed">
-                Escolha um dos planos de impacto ou defina um valor personalizado. 100% dos recursos são auditados e destinados ao bem-estar animal.
+                Escolha um dos nossos kits de impacto para doar via PIX. 100% dos recursos são destinados diretamente ao bem-estar e resgate animal.
               </p>
               
               <div className="space-y-4 pt-10 border-t border-[#2D2926]/10">
@@ -87,30 +69,44 @@ export default function Donation() {
                     whileHover={{ y: -5 }}
                     onClick={() => {
                       setSelected(option.amount);
-                      setCustomValue('');
-                      setError(null);
                     }}
                     className={`relative p-8 border transition-all cursor-pointer flex flex-col items-center text-center ${
-                      selected === option.amount && !customValue
+                      selected === option.amount
                         ? 'bg-[#2D2926] border-[#2D2926] text-[#F9F7F2]' 
                         : 'bg-white border-[#2D2926]/10 text-[#2D2926] hover:border-[#2D2926]/30 shadow-sm'
                     }`}
                   >
                     {option.popular && (
                       <span className={`absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 text-[8px] font-bold uppercase tracking-widest rounded-full ${
-                        selected === option.amount && !customValue ? 'bg-[#C2410C] text-white' : 'bg-[#2D2926] text-white'
+                        selected === option.amount ? 'bg-[#C2410C] text-white' : 'bg-[#2D2926] text-white'
                       }`}>
                         Urgente
                       </span>
                     )}
                     
-                    <option.icon className={`w-8 h-8 mb-6 ${selected === option.amount && !customValue ? 'text-[#C2410C]' : 'text-[#2D2926]/30'}`} />
+                    <option.icon className={`w-8 h-8 mb-6 ${selected === option.amount ? 'text-[#C2410C]' : 'text-[#2D2926]/30'}`} />
                     <h3 className="font-serif text-xl mb-4 italic">{option.title}</h3>
                     <div className="flex items-baseline gap-1 mb-6">
                       <span className="text-[10px] font-bold opacity-60">R$</span>
                       <span className="text-4xl font-serif leading-none">{option.amount}</span>
                     </div>
-                    {selected === option.amount && !customValue && (
+                    
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setModalValue(Number(option.amount));
+                        setIsModalOpen(true);
+                      }}
+                      className={`w-full py-3 text-[10px] font-bold uppercase tracking-widest rounded-full transition-all ${
+                        selected === option.amount
+                          ? 'bg-[#C2410C] text-white'
+                          : 'bg-[#2D2926] text-white hover:bg-[#C2410C]'
+                      }`}
+                    >
+                      Doar Agora
+                    </button>
+
+                    {selected === option.amount && (
                        <motion.div layoutId="check" className="absolute top-4 right-4 text-[#C2410C]">
                           <Check className="w-5 h-5" />
                        </motion.div>
@@ -119,42 +115,11 @@ export default function Donation() {
                 ))}
               </div>
 
-              <div className="bg-white p-10 border border-[#2D2926]/10 flex flex-col md:flex-row items-end gap-8 shadow-xl shadow-[#2D2926]/5">
-                <div className="flex-1 w-full">
-                  <label className="block text-[10px] uppercase font-bold text-[#2D2926]/50 mb-3 tracking-widest leading-none">
-                    Valor Customizado
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-0 bottom-4 font-serif text-2xl text-[#2D2926]/30 leading-none">R$</span>
-                    <input 
-                      type="number" 
-                      placeholder="00,00"
-                      value={customValue}
-                      onChange={(e) => {
-                        setCustomValue(e.target.value);
-                        setError(null);
-                      }}
-                      className={`w-full pl-10 pr-4 pb-2 border-b-2 outline-none transition-all text-3xl font-serif bg-transparent leading-none h-12 ${
-                        error ? 'border-red-500 text-red-500' : 'border-[#2D2926]/10 focus:border-[#C2410C]'
-                      }`}
-                    />
-                  </div>
-                  {error && (
-                    <motion.p 
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="text-[10px] text-red-500 font-bold uppercase tracking-widest mt-3"
-                    >
-                      {error}
-                    </motion.p>
-                  )}
-                </div>
-                <button 
-                  onClick={handleConfirm}
-                  className="w-full md:w-fit px-12 py-5 bg-[#C2410C] text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-[#A1360A] transition-colors shadow-xl shadow-[#C2410C]/20"
-                >
-                  Confirmar Doação
-                </button>
+              <div className="text-center p-8 bg-white border border-[#2D2926]/5 rounded-3xl shadow-sm">
+                <p className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#2D2926]/40 mb-2">Impacto Real</p>
+                <p className="font-serif italic text-[#2D2926]/60 text-sm">
+                  "Cada kit doado representa dias de tranquilidade e saúde para um animal que antes não tinha nada."
+                </p>
               </div>
             </div>
 
