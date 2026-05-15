@@ -15,6 +15,8 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
   const [step, setStep] = useState(1);
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [formData, setFormData] = useState({ name: '', cpf: '' });
+  const [loading, setLoading] = useState(false);
+  const [pixData, setPixData] = useState<{ qrcode: string; copyPaste: string } | null>(null);
 
   useEffect(() => {
     if (!isOpen) {
@@ -22,16 +24,43 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
         setStep(1);
         setSelectedAmount(null);
         setFormData({ name: '', cpf: '' });
+        setPixData(null);
       }, 300);
     }
   }, [isOpen]);
 
-  const handleDonate = (e: React.FormEvent) => {
+  const handleDonate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedAmount || !formData.name || !formData.cpf) return;
     
-    // Simulate donation processing
-    setStep(3);
+    setLoading(true);
+    try {
+      const response = await fetch('/api/checkout/lytron', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: selectedAmount,
+          name: formData.name,
+          cpf: formData.cpf,
+        }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setPixData({
+          qrcode: data.qrcode,
+          copyPaste: data.copyPaste,
+        });
+        setStep(3);
+      } else {
+        alert(data.error || 'Erro ao gerar PIX');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Erro de conexão');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -129,9 +158,10 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                     <div className="pt-4">
                       <button
                         type="submit"
-                        className="w-full py-5 bg-[#C2410C] text-white rounded-full text-xs font-bold uppercase tracking-widest hover:bg-[#A1360A] transition-colors shadow-xl shadow-[#C2410C]/20"
+                        disabled={loading}
+                        className="w-full py-5 bg-[#C2410C] text-white rounded-full text-xs font-bold uppercase tracking-widest hover:bg-[#A1360A] transition-colors shadow-xl shadow-[#C2410C]/20 disabled:opacity-50"
                       >
-                        Gerar PIX de R$ {selectedAmount}
+                        {loading ? 'Gerando PIX...' : `Gerar PIX de R$ ${selectedAmount}`}
                       </button>
                       <button
                         type="button"
@@ -145,32 +175,45 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                 </motion.div>
               )}
 
-              {step === 3 && (
+              {step === 3 && pixData && (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   className="text-center"
                 >
-                  <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <CheckCircle2 className="w-10 h-10" />
-                  </div>
-                  <h2 className="font-serif text-3xl text-[#2D2926] mb-4 italic">Obrigado, {formData.name.split(' ')[0]}!</h2>
-                  <p className="text-[#2D2926]/60 mb-8 leading-relaxed">
-                    Sua doação de R$ {selectedAmount} foi recebida com sucesso. Você acaba de salvar uma vida!
-                  </p>
+                  <h2 className="font-serif text-3xl text-[#2D2926] mb-2 italic">Quase lá!</h2>
+                  <p className="text-sm text-[#2D2926]/60 mb-8">Escaneie o QR Code abaixo ou copie a chave PIX.</p>
                   
-                  <div className="bg-[#2D2926] text-white p-8 rounded-3xl">
-                    <p className="text-sm italic opacity-80 leading-relaxed font-serif">
-                      "Um gesto de amor que transforma o destino de um animal de rua."
-                    </p>
+                  <div className="bg-white p-6 rounded-3xl inline-block mb-8 shadow-inner border border-[#2D2926]/5">
+                    {pixData.qrcode.startsWith('http') || pixData.qrcode.startsWith('data:image') ? (
+                       <img src={pixData.qrcode} alt="PIX QR Code" className="w-48 h-48" />
+                    ) : (
+                      <div className="p-2 bg-white">
+                        {/* If we have the library, we'd use QRCodeCanvas here */}
+                        <div className="w-48 h-48 bg-gray-100 flex items-center justify-center text-[10px] text-gray-400 p-4 break-all">
+                          {pixData.qrcode.substring(0, 50)}...
+                        </div>
+                      </div>
+                    )}
                   </div>
 
-                  <button
-                    onClick={onClose}
-                    className="mt-8 text-[10px] font-bold uppercase tracking-widest text-[#2D2926]/40 hover:text-[#2D2926] transition-colors"
-                  >
-                    Fechar Janela
-                  </button>
+                  <div className="space-y-4">
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(pixData.copyPaste);
+                        alert('Copiado para a área de transferência!');
+                      }}
+                      className="w-full py-4 bg-[#2D2926] text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#C2410C] transition-colors"
+                    >
+                      Copiar Código PIX
+                    </button>
+                    <button
+                      onClick={onClose}
+                      className="w-full py-4 text-[#2D2926]/40 text-[10px] font-bold uppercase tracking-widest hover:text-[#2D2926] transition-colors"
+                    >
+                      Já realizei o pagamento
+                    </button>
+                  </div>
                 </motion.div>
               )}
             </div>
