@@ -31,6 +31,7 @@ export default function DonationModal({ isOpen, onClose, initialAmount = null }:
   const [loading, setLoading] = useState(false);
   const [pixData, setPixData] = useState<{ id: string; qrcode: string; copyPaste: string } | null>(null);
   const [paid, setPaid] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isOpen) {
@@ -42,6 +43,7 @@ export default function DonationModal({ isOpen, onClose, initialAmount = null }:
         setFormData({ name: '', cpf: '' });
         setPixData(null);
         setPaid(false);
+        setError(null);
       }, 300);
     }
   }, [isOpen]);
@@ -71,10 +73,11 @@ export default function DonationModal({ isOpen, onClose, initialAmount = null }:
   }, [pixData?.id, paid, step]);
 
   const handleNextStep = () => {
+    setError(null);
     if (isCustom) {
       const val = Number(customValue);
       if (isNaN(val) || val < 10) {
-        alert('O valor mínimo para doação é R$ 10,00');
+        setError('O valor mínimo para doação é R$ 10,00');
         return;
       }
       setSelectedAmount(val);
@@ -84,6 +87,7 @@ export default function DonationModal({ isOpen, onClose, initialAmount = null }:
 
   const handleDonate = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     const finalAmount = isCustom ? Number(customValue) : selectedAmount;
     if (!finalAmount || finalAmount < 10 || !formData.name || !formData.cpf) return;
     
@@ -108,11 +112,11 @@ export default function DonationModal({ isOpen, onClose, initialAmount = null }:
         });
         setStep(3);
       } else {
-        alert(data.error || 'Erro ao gerar PIX');
+        setError(data.error || 'Erro ao gerar PIX');
       }
-    } catch (error) {
-      console.error(error);
-      alert('Erro de conexão');
+    } catch (err) {
+      console.error(err);
+      setError('Erro de conexão com o servidor');
     } finally {
       setLoading(false);
     }
@@ -159,6 +163,7 @@ export default function DonationModal({ isOpen, onClose, initialAmount = null }:
                         onClick={() => {
                           setSelectedAmount(val);
                           setIsCustom(false);
+                          setError(null);
                         }}
                         className={`py-4 rounded-xl border-2 transition-all font-bold text-lg ${
                           !isCustom && selectedAmount === val 
@@ -173,6 +178,7 @@ export default function DonationModal({ isOpen, onClose, initialAmount = null }:
                       onClick={() => {
                         setIsCustom(true);
                         setSelectedAmount(null);
+                        setError(null);
                       }}
                       className={`py-4 rounded-xl border-2 transition-all font-bold text-lg ${
                         isCustom 
@@ -198,11 +204,25 @@ export default function DonationModal({ isOpen, onClose, initialAmount = null }:
                           type="number"
                           min="10"
                           value={customValue}
-                          onChange={(e) => setCustomValue(e.target.value)}
-                          className="w-full bg-white border-2 border-[#C2410C] rounded-xl pl-12 pr-5 py-4 focus:ring-4 focus:ring-[#C2410C]/10 outline-none transition-all font-bold text-xl"
+                          onChange={(e) => {
+                            setCustomValue(e.target.value);
+                            setError(null);
+                          }}
+                          className={`w-full bg-white border-2 rounded-xl pl-12 pr-5 py-4 focus:ring-4 outline-none transition-all font-bold text-xl ${
+                            error ? 'border-red-500 focus:ring-red-500/10' : 'border-[#C2410C] focus:ring-[#C2410C]/10'
+                          }`}
                           placeholder="0,00"
                         />
                       </div>
+                      {error && (
+                        <motion.p 
+                          initial={{ opacity: 0, y: -5 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="text-[10px] text-red-500 font-bold uppercase tracking-widest text-center mt-3"
+                        >
+                          {error}
+                        </motion.p>
+                      )}
                     </motion.div>
                   )}
 

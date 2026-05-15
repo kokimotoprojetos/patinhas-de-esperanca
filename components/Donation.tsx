@@ -32,13 +32,15 @@ export default function Donation() {
   const [customValue, setCustomValue] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalValue, setModalValue] = useState<number | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleConfirm = () => {
+    setError(null);
     let finalAmount: number;
     if (customValue) {
       finalAmount = Number(customValue);
       if (isNaN(finalAmount) || finalAmount < 10) {
-        alert('O valor mínimo para doação é R$ 10,00');
+        setError('Valor mínimo R$ 10,00');
         return;
       }
     } else {
@@ -86,6 +88,7 @@ export default function Donation() {
                     onClick={() => {
                       setSelected(option.amount);
                       setCustomValue('');
+                      setError(null);
                     }}
                     className={`relative p-8 border transition-all cursor-pointer flex flex-col items-center text-center ${
                       selected === option.amount && !customValue
@@ -127,10 +130,24 @@ export default function Donation() {
                       type="number" 
                       placeholder="00,00"
                       value={customValue}
-                      onChange={(e) => setCustomValue(e.target.value)}
-                      className="w-full pl-10 pr-4 pb-2 border-b-2 border-[#2D2926]/10 focus:border-[#C2410C] outline-none transition-all text-3xl font-serif bg-transparent leading-none h-12"
+                      onChange={(e) => {
+                        setCustomValue(e.target.value);
+                        setError(null);
+                      }}
+                      className={`w-full pl-10 pr-4 pb-2 border-b-2 outline-none transition-all text-3xl font-serif bg-transparent leading-none h-12 ${
+                        error ? 'border-red-500 text-red-500' : 'border-[#2D2926]/10 focus:border-[#C2410C]'
+                      }`}
                     />
                   </div>
+                  {error && (
+                    <motion.p 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="text-[10px] text-red-500 font-bold uppercase tracking-widest mt-3"
+                    >
+                      {error}
+                    </motion.p>
+                  )}
                 </div>
                 <button 
                   onClick={handleConfirm}
