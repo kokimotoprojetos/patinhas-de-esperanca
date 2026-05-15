@@ -15,6 +15,8 @@ const values = [20, 30, 50, 100, 150];
 export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
   const [step, setStep] = useState(1);
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
+  const [isCustom, setIsCustom] = useState(false);
+  const [customValue, setCustomValue] = useState<string>('');
   const [formData, setFormData] = useState({ name: '', cpf: '' });
   const [loading, setLoading] = useState(false);
   const [pixData, setPixData] = useState<{ id: string; qrcode: string; copyPaste: string } | null>(null);
@@ -25,6 +27,8 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
       setTimeout(() => {
         setStep(1);
         setSelectedAmount(null);
+        setIsCustom(false);
+        setCustomValue('');
         setFormData({ name: '', cpf: '' });
         setPixData(null);
         setPaid(false);
@@ -56,9 +60,22 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
     };
   }, [pixData?.id, paid, step]);
 
+  const handleNextStep = () => {
+    if (isCustom) {
+      const val = Number(customValue);
+      if (isNaN(val) || val < 10) {
+        alert('O valor mínimo para doação é R$ 10,00');
+        return;
+      }
+      setSelectedAmount(val);
+    }
+    setStep(2);
+  };
+
   const handleDonate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedAmount || !formData.name || !formData.cpf) return;
+    const finalAmount = isCustom ? Number(customValue) : selectedAmount;
+    if (!finalAmount || finalAmount < 10 || !formData.name || !formData.cpf) return;
     
     setLoading(true);
     try {
@@ -66,7 +83,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          amount: selectedAmount,
+          amount: finalAmount,
           name: formData.name,
           cpf: formData.cpf,
         }),
@@ -125,13 +142,16 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                   <h2 className="font-serif text-3xl text-[#2D2926] mb-2 italic">Escolha o impacto</h2>
                   <p className="text-sm text-[#2D2926]/60 mb-8">Selecione um valor para doar via PIX e salvar uma vida.</p>
                   
-                  <div className="grid grid-cols-2 gap-3 mb-8">
+                  <div className="grid grid-cols-2 gap-3 mb-4">
                     {values.map((val) => (
                       <button
                         key={val}
-                        onClick={() => setSelectedAmount(val)}
+                        onClick={() => {
+                          setSelectedAmount(val);
+                          setIsCustom(false);
+                        }}
                         className={`py-4 rounded-xl border-2 transition-all font-bold text-lg ${
-                          selectedAmount === val 
+                          !isCustom && selectedAmount === val 
                             ? 'bg-[#C2410C] border-[#C2410C] text-white shadow-lg shadow-[#C2410C]/20' 
                             : 'bg-white border-[#2D2926]/5 text-[#2D2926] hover:border-[#2D2926]/20'
                         }`}
@@ -139,12 +159,47 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                         R$ {val}
                       </button>
                     ))}
+                    <button
+                      onClick={() => {
+                        setIsCustom(true);
+                        setSelectedAmount(null);
+                      }}
+                      className={`py-4 rounded-xl border-2 transition-all font-bold text-lg ${
+                        isCustom 
+                          ? 'bg-[#C2410C] border-[#C2410C] text-white shadow-lg shadow-[#C2410C]/20' 
+                          : 'bg-white border-[#2D2926]/5 text-[#2D2926] hover:border-[#2D2926]/20'
+                      }`}
+                    >
+                      Outro valor
+                    </button>
                   </div>
 
+                  {isCustom && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mb-8"
+                    >
+                      <label className="block text-[10px] uppercase font-bold text-[#2D2926]/40 mb-2 tracking-widest text-center">Digite o valor (mínimo R$ 10)</label>
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-[#2D2926]">R$</span>
+                        <input 
+                          autoFocus
+                          type="number"
+                          min="10"
+                          value={customValue}
+                          onChange={(e) => setCustomValue(e.target.value)}
+                          className="w-full bg-white border-2 border-[#C2410C] rounded-xl pl-12 pr-5 py-4 focus:ring-4 focus:ring-[#C2410C]/10 outline-none transition-all font-bold text-xl"
+                          placeholder="0,00"
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+
                   <button
-                    disabled={!selectedAmount}
-                    onClick={() => setStep(2)}
-                    className="w-full py-5 bg-[#2D2926] text-white rounded-full text-xs font-bold uppercase tracking-widest disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#C2410C] transition-colors shadow-xl shadow-[#2D2926]/10"
+                    disabled={!isCustom && !selectedAmount}
+                    onClick={handleNextStep}
+                    className="w-full mt-4 py-5 bg-[#2D2926] text-white rounded-full text-xs font-bold uppercase tracking-widest disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#C2410C] transition-colors shadow-xl shadow-[#2D2926]/10"
                   >
                     Próximo Passo
                   </button>
