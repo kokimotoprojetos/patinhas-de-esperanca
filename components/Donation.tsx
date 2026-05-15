@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
 import { Check, ShieldCheck, Soup, Pill, Home } from 'lucide-react';
+import DonationModal from './DonationModal';
 
 const donationOptions = [
   {
@@ -28,6 +29,24 @@ const donationOptions = [
 
 export default function Donation() {
   const [selected, setSelected] = useState('80');
+  const [customValue, setCustomValue] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalValue, setModalValue] = useState<number | null>(null);
+
+  const handleConfirm = () => {
+    let finalAmount: number;
+    if (customValue) {
+      finalAmount = Number(customValue);
+      if (isNaN(finalAmount) || finalAmount < 10) {
+        alert('O valor mínimo para doação é R$ 10,00');
+        return;
+      }
+    } else {
+      finalAmount = Number(selected);
+    }
+    setModalValue(finalAmount);
+    setIsModalOpen(true);
+  };
 
   return (
     <section id="doar" className="py-32 bg-[#E6E2D8]/30">
@@ -64,28 +83,31 @@ export default function Donation() {
                   <motion.div
                     key={option.amount}
                     whileHover={{ y: -5 }}
-                    onClick={() => setSelected(option.amount)}
+                    onClick={() => {
+                      setSelected(option.amount);
+                      setCustomValue('');
+                    }}
                     className={`relative p-8 border transition-all cursor-pointer flex flex-col items-center text-center ${
-                      selected === option.amount 
+                      selected === option.amount && !customValue
                         ? 'bg-[#2D2926] border-[#2D2926] text-[#F9F7F2]' 
                         : 'bg-white border-[#2D2926]/10 text-[#2D2926] hover:border-[#2D2926]/30 shadow-sm'
                     }`}
                   >
                     {option.popular && (
                       <span className={`absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 text-[8px] font-bold uppercase tracking-widest rounded-full ${
-                        selected === option.amount ? 'bg-[#C2410C] text-white' : 'bg-[#2D2926] text-white'
+                        selected === option.amount && !customValue ? 'bg-[#C2410C] text-white' : 'bg-[#2D2926] text-white'
                       }`}>
                         Urgente
                       </span>
                     )}
                     
-                    <option.icon className={`w-8 h-8 mb-6 ${selected === option.amount ? 'text-[#C2410C]' : 'text-[#2D2926]/30'}`} />
+                    <option.icon className={`w-8 h-8 mb-6 ${selected === option.amount && !customValue ? 'text-[#C2410C]' : 'text-[#2D2926]/30'}`} />
                     <h3 className="font-serif text-xl mb-4 italic">{option.title}</h3>
                     <div className="flex items-baseline gap-1 mb-6">
                       <span className="text-[10px] font-bold opacity-60">R$</span>
                       <span className="text-4xl font-serif leading-none">{option.amount}</span>
                     </div>
-                    {selected === option.amount && (
+                    {selected === option.amount && !customValue && (
                        <motion.div layoutId="check" className="absolute top-4 right-4 text-[#C2410C]">
                           <Check className="w-5 h-5" />
                        </motion.div>
@@ -104,11 +126,16 @@ export default function Donation() {
                     <input 
                       type="number" 
                       placeholder="00,00"
+                      value={customValue}
+                      onChange={(e) => setCustomValue(e.target.value)}
                       className="w-full pl-10 pr-4 pb-2 border-b-2 border-[#2D2926]/10 focus:border-[#C2410C] outline-none transition-all text-3xl font-serif bg-transparent leading-none h-12"
                     />
                   </div>
                 </div>
-                <button className="w-full md:w-fit px-12 py-5 bg-[#C2410C] text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-[#A1360A] transition-colors shadow-xl shadow-[#C2410C]/20">
+                <button 
+                  onClick={handleConfirm}
+                  className="w-full md:w-fit px-12 py-5 bg-[#C2410C] text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-[#A1360A] transition-colors shadow-xl shadow-[#C2410C]/20"
+                >
                   Confirmar Doação
                 </button>
               </div>
@@ -117,6 +144,11 @@ export default function Donation() {
           </div>
         </div>
       </div>
+      <DonationModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        initialAmount={modalValue}
+      />
     </section>
   );
 }

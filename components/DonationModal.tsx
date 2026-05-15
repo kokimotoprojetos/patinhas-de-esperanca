@@ -8,15 +8,25 @@ import { QRCodeCanvas } from 'qrcode.react';
 interface DonationModalProps {
   isOpen: boolean;
   onClose: () => void;
+  initialAmount?: number | null;
 }
 
 const values = [20, 30, 50, 100, 150];
 
-export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
+export default function DonationModal({ isOpen, onClose, initialAmount = null }: DonationModalProps) {
   const [step, setStep] = useState(1);
-  const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
+  const [selectedAmount, setSelectedAmount] = useState<number | null>(initialAmount);
   const [isCustom, setIsCustom] = useState(false);
   const [customValue, setCustomValue] = useState<string>('');
+
+  useEffect(() => {
+    if (isOpen && initialAmount) {
+      setSelectedAmount(initialAmount);
+      setIsCustom(false);
+      setStep(1);
+    }
+  }, [isOpen, initialAmount]);
+
   const [formData, setFormData] = useState({ name: '', cpf: '' });
   const [loading, setLoading] = useState(false);
   const [pixData, setPixData] = useState<{ id: string; qrcode: string; copyPaste: string } | null>(null);
