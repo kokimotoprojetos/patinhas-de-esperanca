@@ -1,14 +1,34 @@
 'use client';
 
-import { motion } from 'motion/react';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Heart } from 'lucide-react';
 import Image from 'next/image';
+import DonationModal from './DonationModal';
+
+const images = [
+  '/pet3.webp',
+  '/pet.webp',
+  '/pet1.webp',
+  '/pet2.webp',
+  '/pet4.webp'
+];
 
 export default function Hero() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentImage, setCurrentImage] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentImage((prev) => (prev + 1) % images.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <section className="relative min-h-[90vh] flex flex-col md:flex-row border-b border-[#2D2926]/10">
       {/* Left Content */}
-      <div className="w-full md:w-1/2 p-8 md:p-20 flex flex-col justify-center gap-10 bg-[#F9F7F2]">
+      <div className="w-full md:w-1/2 p-8 md:p-20 flex flex-col justify-center gap-10 bg-[#F9F7F2] z-10">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -24,26 +44,55 @@ export default function Hero() {
             Mais de 2.000 animais vivem hoje nas ruas da nossa cidade sem acesso a comida ou abrigo. Sua doação é o único fio de esperança para que eles não passem mais um inverno sozinhos.
           </p>
           
+          {/* Mobile Carousel (Only visible on mobile) */}
+          <div className="md:hidden w-full aspect-video relative mb-10 overflow-hidden rounded-2xl shadow-xl shadow-[#2D2926]/10">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentImage}
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -50 }}
+                transition={{ duration: 0.5 }}
+                className="absolute inset-0"
+              >
+                <Image 
+                  src={images[currentImage]}
+                  alt="Pets resgatados"
+                  fill
+                  className="object-cover"
+                />
+              </motion.div>
+            </AnimatePresence>
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
+              {images.map((_, i) => (
+                <div 
+                  key={i} 
+                  className={`w-1.5 h-1.5 rounded-full transition-all ${i === currentImage ? 'bg-white w-4' : 'bg-white/40'}`} 
+                />
+              ))}
+            </div>
+          </div>
+
           <div className="flex flex-col sm:flex-row gap-6 items-start">
-            <a 
-              href="#doar"
-              className="bg-[#2D2926] text-[#F9F7F2] px-10 py-5 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-[#C2410C] transition-colors text-center shadow-lg shadow-[#2D2926]/10"
+            <button 
+              onClick={() => setIsModalOpen(true)}
+              className="bg-[#2D2926] text-[#F9F7F2] px-10 py-5 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-[#C2410C] transition-colors text-center shadow-lg shadow-[#2D2926]/10 w-full sm:w-auto"
             >
-              Doar Agora • R$ 25,00
-            </a>
+              Salve uma vida
+            </button>
             <div className="flex items-center gap-3 text-[10px] uppercase font-bold tracking-tight opacity-50 px-2">
                <span>PIX</span>
                <span className="w-1 h-1 bg-[#2D2926] rounded-full"></span>
                <span>Cartão</span>
                <span className="w-1 h-1 bg-[#2D2926] rounded-full"></span>
-               <span>100% Repassado</span>
+               <span>Sorteio iPhone 17</span>
             </div>
           </div>
         </motion.div>
       </div>
 
-      {/* Right Visual Content */}
-      <div className="w-full md:w-1/2 relative bg-[#E6E2D8] flex items-center justify-center p-8 md:p-20 overflow-hidden min-h-[500px]">
+      {/* Right Visual Content (Desktop only or hidden on mobile if preferred, keeping it for now) */}
+      <div className="hidden md:flex w-full md:w-1/2 relative bg-[#E6E2D8] items-center justify-center p-8 md:p-20 overflow-hidden min-h-[500px]">
         <div className="w-full h-full border border-[#2D2926]/20 relative">
           <Image 
             src="/pet3.webp"
@@ -78,6 +127,8 @@ export default function Hero() {
           <div className="absolute inset-4 border border-white/20 pointer-events-none" />
         </div>
       </div>
+
+      <DonationModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </section>
   );
 }
