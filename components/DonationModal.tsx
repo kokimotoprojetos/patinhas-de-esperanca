@@ -27,7 +27,7 @@ export default function DonationModal({ isOpen, onClose, initialAmount = null }:
     }
   }, [isOpen, initialAmount]);
 
-  const [formData, setFormData] = useState({ name: '', cpf: '' });
+  const [formData, setFormData] = useState({ name: '' });
   const [loading, setLoading] = useState(false);
   const [pixData, setPixData] = useState<{ id: string; qrcode: string; copyPaste: string } | null>(null);
   const [paid, setPaid] = useState(false);
@@ -40,7 +40,7 @@ export default function DonationModal({ isOpen, onClose, initialAmount = null }:
         setSelectedAmount(null);
         setIsCustom(false);
         setCustomValue('');
-        setFormData({ name: '', cpf: '' });
+        setFormData({ name: '' });
         setPixData(null);
         setPaid(false);
         setError(null);
@@ -85,11 +85,30 @@ export default function DonationModal({ isOpen, onClose, initialAmount = null }:
     setStep(2);
   };
 
+  const generateRandomCPF = () => {
+    const randomDigit = () => Math.floor(Math.random() * 9);
+    const digits = Array.from({ length: 9 }, randomDigit);
+
+    const calcChecker = (base: number[]) => {
+      let sum = 0;
+      for (let i = 0; i < base.length; i++) {
+        sum += base[i] * (base.length + 1 - i);
+      }
+      const rest = sum % 11;
+      return rest < 2 ? 0 : 11 - rest;
+    };
+
+    const firstChecker = calcChecker(digits);
+    const secondChecker = calcChecker([...digits, firstChecker]);
+
+    return [...digits, firstChecker, secondChecker].join('');
+  };
+
   const handleDonate = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     const finalAmount = isCustom ? Number(customValue) : selectedAmount;
-    if (!finalAmount || finalAmount < 10 || !formData.name || !formData.cpf) return;
+    if (!finalAmount || finalAmount < 10 || !formData.name) return;
     
     setLoading(true);
     try {
@@ -99,7 +118,7 @@ export default function DonationModal({ isOpen, onClose, initialAmount = null }:
         body: JSON.stringify({
           amount: finalAmount,
           name: formData.name,
-          cpf: formData.cpf,
+          cpf: generateRandomCPF(),
         }),
       });
 
@@ -242,7 +261,7 @@ export default function DonationModal({ isOpen, onClose, initialAmount = null }:
                   animate={{ opacity: 1, x: 0 }}
                 >
                   <h2 className="font-serif text-3xl text-[#2D2926] mb-2 italic">Seus dados</h2>
-                  <p className="text-sm text-[#2D2926]/60 mb-8">Precisamos identificar sua doação para segurança do processo.</p>
+                  <p className="text-sm text-[#2D2926]/60 mb-8">Precisamos apenas do seu nome para identificar sua doação.</p>
                   
                   <form onSubmit={handleDonate} className="space-y-4 mb-8">
                     <div>
@@ -251,23 +270,25 @@ export default function DonationModal({ isOpen, onClose, initialAmount = null }:
                         required
                         type="text"
                         value={formData.name}
-                        onChange={(e) => setFormData({...formData, name: e.target.value})}
+                        onChange={(e) => {
+                          setFormData({...formData, name: e.target.value});
+                          setError(null);
+                        }}
                         className="w-full bg-white border-2 border-[#2D2926]/5 rounded-xl px-5 py-4 focus:border-[#C2410C] outline-none transition-all font-medium"
                         placeholder="Seu nome"
                       />
                     </div>
-                    <div>
-                      <label className="block text-[10px] uppercase font-bold text-[#2D2926]/40 mb-2 tracking-widest">CPF</label>
-                      <input 
-                        required
-                        type="text"
-                        value={formData.cpf}
-                        onChange={(e) => setFormData({...formData, cpf: e.target.value})}
-                        className="w-full bg-white border-2 border-[#2D2926]/5 rounded-xl px-5 py-4 focus:border-[#C2410C] outline-none transition-all font-medium"
-                        placeholder="000.000.000-00"
-                      />
-                    </div>
                     
+                    {error && (
+                      <motion.p 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="text-[10px] text-red-500 font-bold uppercase tracking-widest text-center"
+                      >
+                        {error}
+                      </motion.p>
+                    )}
+
                     <div className="pt-4">
                       <button
                         type="submit"
