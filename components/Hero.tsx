@@ -46,7 +46,7 @@ export default function Hero() {
       <div className="w-full md:w-1/2 relative bg-[#E6E2D8] flex items-center justify-center p-8 md:p-20 overflow-hidden min-h-[500px]">
         <div className="w-full h-full border border-[#2D2926]/20 relative">
           <Image 
-            src="/pet.webp"
+            src="/pet3.webp"
             alt="Cachorro esperando em uma ponte, inspirado na imagem enviada"
             fill
             className="object-cover opacity-80"
