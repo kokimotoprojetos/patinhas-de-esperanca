@@ -81,11 +81,7 @@ export default function Hero() {
               Salve uma vida hoje
             </button>
             <div className="flex items-center gap-3 text-[10px] uppercase font-bold tracking-tight opacity-50 px-2">
-               <span>PIX</span>
-               <span className="w-1 h-1 bg-[#2D2926] rounded-full"></span>
-               <span>Cartão</span>
-               <span className="w-1 h-1 bg-[#2D2926] rounded-full"></span>
-               <span>Sorteio iPhone 17</span>
+               <span>Pagamento via PIX</span>
             </div>
           </div>
         </motion.div>

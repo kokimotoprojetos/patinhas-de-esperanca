@@ -15,7 +15,6 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
   const [step, setStep] = useState(1);
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [formData, setFormData] = useState({ name: '', cpf: '' });
-  const [luckyNumber, setLuckyNumber] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isOpen) {
@@ -23,7 +22,6 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
         setStep(1);
         setSelectedAmount(null);
         setFormData({ name: '', cpf: '' });
-        setLuckyNumber(null);
       }, 300);
     }
   }, [isOpen]);
@@ -33,8 +31,6 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
     if (!selectedAmount || !formData.name || !formData.cpf) return;
     
     // Simulate donation processing
-    const number = Math.floor(1000 + Math.random() * 9000).toString();
-    setLuckyNumber(number);
     setStep(3);
   };
 
@@ -70,7 +66,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                   animate={{ opacity: 1, x: 0 }}
                 >
                   <h2 className="font-serif text-3xl text-[#2D2926] mb-2 italic">Escolha o impacto</h2>
-                  <p className="text-sm text-[#2D2926]/60 mb-8">Selecione um valor para salvar uma vida hoje.</p>
+                  <p className="text-sm text-[#2D2926]/60 mb-8">Selecione um valor para doar via PIX e salvar uma vida.</p>
                   
                   <div className="grid grid-cols-2 gap-3 mb-8">
                     {values.map((val) => (
@@ -104,7 +100,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                   animate={{ opacity: 1, x: 0 }}
                 >
                   <h2 className="font-serif text-3xl text-[#2D2926] mb-2 italic">Seus dados</h2>
-                  <p className="text-sm text-[#2D2926]/60 mb-8">Precisamos identificar sua doação para o sorteio.</p>
+                  <p className="text-sm text-[#2D2926]/60 mb-8">Precisamos identificar sua doação para segurança do processo.</p>
                   
                   <form onSubmit={handleDonate} className="space-y-4 mb-8">
                     <div>
@@ -135,7 +131,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                         type="submit"
                         className="w-full py-5 bg-[#C2410C] text-white rounded-full text-xs font-bold uppercase tracking-widest hover:bg-[#A1360A] transition-colors shadow-xl shadow-[#C2410C]/20"
                       >
-                        Finalizar Doação de R$ {selectedAmount}
+                        Gerar PIX de R$ {selectedAmount}
                       </button>
                       <button
                         type="button"
@@ -160,20 +156,13 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                   </div>
                   <h2 className="font-serif text-3xl text-[#2D2926] mb-4 italic">Obrigado, {formData.name.split(' ')[0]}!</h2>
                   <p className="text-[#2D2926]/60 mb-8 leading-relaxed">
-                    Sua doação de R$ {selectedAmount} foi recebida. Você acaba de salvar uma vida!
+                    Sua doação de R$ {selectedAmount} foi recebida com sucesso. Você acaba de salvar uma vida!
                   </p>
                   
-                  <div className="bg-[#2D2926] text-white p-8 rounded-3xl relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
-                      <Ticket className="w-24 h-24 rotate-12" />
-                    </div>
-                    <div className="relative z-10">
-                      <span className="text-[10px] font-bold uppercase tracking-[0.3em] opacity-50 block mb-2">Seu Número da Sorte</span>
-                      <div className="text-5xl font-serif tracking-[0.2em] mb-4 text-[#C2410C]">{luckyNumber}</div>
-                      <p className="text-[9px] uppercase tracking-wider opacity-60 leading-relaxed">
-                        Guarde este número para o sorteio do <br/><span className="text-white font-bold">iPhone 17</span>
-                      </p>
-                    </div>
+                  <div className="bg-[#2D2926] text-white p-8 rounded-3xl">
+                    <p className="text-sm italic opacity-80 leading-relaxed font-serif">
+                      "Um gesto de amor que transforma o destino de um animal de rua."
+                    </p>
                   </div>
 
                   <button
